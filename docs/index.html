@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AIエージェント案件 - ドキュメントポータル</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --primary-dark: #1e40af;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --gray-900: #111827;
+      --green: #16a34a;
+      --green-light: #f0fdf4;
+      --yellow: #ca8a04;
+      --yellow-light: #fefce8;
+      --red: #dc2626;
+      --red-light: #fef2f2;
+      --purple: #7c3aed;
+      --purple-light: #f5f3ff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', Meiryo, sans-serif;
+      background: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 60%, #3b82f6 100%);
+      color: white;
+      padding: 48px 40px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 300px; height: 300px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    header::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: 30%;
+      width: 200px; height: 200px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 50%;
+    }
+    .header-inner { max-width: 1100px; margin: 0 auto; position: relative; z-index: 1; }
+    .header-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 16px;
+    }
+    header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    header p {
+      font-size: 15px;
+      color: rgba(255,255,255,0.75);
+      margin-bottom: 28px;
+    }
+    .header-stats {
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+    }
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .stat-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: white;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.65);
+    }
+
+    /* ===== MAIN ===== */
+    main {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 40px 24px 80px;
+    }
+
+    /* ===== SECTION TITLE ===== */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      margin-top: 48px;
+    }
+    .section-header:first-child { margin-top: 0; }
+    .section-icon {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 16px;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--gray-900);
+    }
+    .section-count {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--gray-500);
+      background: var(--gray-100);
+      padding: 2px 10px;
+      border-radius: 20px;
+    }
+
+    /* ===== CARD GRID ===== */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+
+    /* ===== DOC CARD ===== */
+    .doc-card {
+      background: white;
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 24px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: box-shadow 0.2s, transform 0.2s, border-color 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .doc-card:hover {
+      box-shadow: 0 8px 24px rgba(37,99,235,0.12);
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+    .doc-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      border-radius: 12px 12px 0 0;
+    }
+    .doc-card.cat-log::before    { background: linear-gradient(90deg, #2563eb, #60a5fa); }
+    .doc-card.cat-design::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+    .doc-card.cat-research::before { background: linear-gradient(90deg, #16a34a, #4ade80); }
+    .doc-card.cat-other::before  { background: linear-gradient(90deg, #ca8a04, #fbbf24); }
+
+    .card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .card-icon {
+      width: 40px; height: 40px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+    .cat-log    .card-icon { background: var(--primary-light); }
+    .cat-design .card-icon { background: var(--purple-light); }
+    .cat-research .card-icon { background: var(--green-light); }
+    .cat-other  .card-icon { background: var(--yellow-light); }
+
+    .card-status {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 20px;
+      white-space: nowrap;
+    }
+    .status-active   { background: var(--green-light);  color: var(--green); }
+    .status-draft    { background: var(--yellow-light); color: var(--yellow); }
+    .status-planned  { background: var(--gray-100);     color: var(--gray-500); }
+    .status-review   { background: var(--purple-light); color: var(--purple); }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gray-900);
+      line-height: 1.4;
+    }
+    .card-desc {
+      font-size: 13px;
+      color: var(--gray-500);
+      line-height: 1.6;
+      flex: 1;
+    }
+    .card-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 12px;
+      color: var(--gray-400);
+      padding-top: 12px;
+      border-top: 1px solid var(--gray-100);
+    }
+    .card-meta span { display: flex; align-items: center; gap: 4px; }
+    .card-arrow {
+      margin-left: auto;
+      color: var(--primary);
+      font-size: 16px;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .doc-card:hover .card-arrow { opacity: 1; transform: translateX(3px); }
+
+    /* ===== PLACEHOLDER CARD ===== */
+    .placeholder-card {
+      background: white;
+      border: 2px dashed var(--gray-200);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 160px;
+      color: var(--gray-400);
+      font-size: 13px;
+      text-align: center;
+    }
+    .placeholder-card .plus {
+      font-size: 28px;
+      color: var(--gray-200);
+      line-height: 1;
+    }
+
+    /* ===== PHASE BANNER ===== */
+    .phase-banner {
+      background: linear-gradient(135deg, var(--primary-light), #e0f2fe);
+      border: 1px solid #bfdbfe;
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin-bottom: 40px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .phase-dot {
+      width: 12px; height: 12px;
+      background: var(--primary);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(37,99,235,0.2);
+      flex-shrink: 0;
+      animation: pulse 2s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 4px rgba(37,99,235,0.2); }
+      50% { box-shadow: 0 0 0 8px rgba(37,99,235,0.1); }
+    }
+    .phase-text { font-size: 14px; color: var(--primary-dark); }
+    .phase-text strong { font-weight: 700; }
+
+    /* ===== FOOTER ===== */
+    footer {
+      text-align: center;
+      padding: 32px;
+      font-size: 12px;
+      color: var(--gray-400);
+      border-top: 1px solid var(--gray-200);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-badge">Project Documentation</div>
+    <h1>AIエージェント案件 ドキュメントポータル</h1>
+    <p>Claude Code × クラウドインフラ構築 — Skills精度評価・最適化プロジェクト</p>
+    <div class="header-stats">
+      <div class="stat-item">
+        <span class="stat-value" id="total-docs">1</span>
+        <span class="stat-label">総ドキュメント数</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">立ち上げ前</span>
+        <span class="stat-label">現在フェーズ</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-value">2026-06-13</span>
+        <span class="stat-label">最終更新日</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- フェーズバナー -->
+  <div class="phase-banner">
+    <div class="phase-dot"></div>
+    <div class="phase-text">
+      <strong>現在のフェーズ：プロジェクト立ち上げ前 / 検討・ブレインストーミング段階</strong>
+      — Skills精度評価アプローチの選定と、PoCの設計準備を進めています。
+    </div>
+  </div>
+
+  <!-- 検討ログ -->
+  <div class="section-header">
+    <div class="section-icon" style="background:#eff6ff;">📋</div>
+    <span class="section-title">検討ログ</span>
+    <span class="section-count">1件</span>
+  </div>
+  <div class="card-grid">
+    <a href="development_log.html" class="doc-card cat-log">
+      <div class="card-top">
+        <div class="card-icon">📋</div>
+        <span class="card-status status-active">更新中</span>
+      </div>
+      <div class="card-title">開発ログ：Skills精度評価・最適化検討</div>
+      <div class="card-desc">プロジェクト立ち上げ前フェーズにおける課題整理、DSPy調査結果、評価アプローチのブレインストーミング結果を時系列で記録。意思決定の過程と保留事項を管理する。</div>
+      <div class="card-meta">
+        <span>📅 2026-06-13</span>
+        <span>✍️ Manus AI / チーム</span>
+        <span>🔖 LOG-001〜003</span>
+        <span class="card-arrow">→</span>
+      </div>
+    </a>
+    <div class="placeholder-card">
+      <div class="plus">+</div>
+      <div>次の検討ログがここに追加されます</div>
+    </div>
+  </div>
+
+  <!-- 設計・仕様書 -->
+  <div class="section-header">
+    <div class="section-icon" style="background:#f5f3ff;">🏗️</div>
+    <span class="section-title">設計・仕様書</span>
+    <span class="section-count">準備中</span>
+  </div>
+  <div class="card-grid">
+    <div class="placeholder-card">
+      <div class="plus">+</div>
+      <div>要件定義書 / 基本設計書<br>（PoC開始後に追加予定）</div>
+    </div>
+    <div class="placeholder-card">
+      <div class="plus">+</div>
+      <div>詳細設計書 / Skills仕様書<br>（設計フェーズで追加予定）</div>
+    </div>
+  </div>
+
+  <!-- 調査・リサーチ -->
+  <div class="section-header">
+    <div class="section-icon" style="background:#f0fdf4;">🔬</div>
+    <span class="section-title">調査・リサーチ</span>
+    <span class="section-count">準備中</span>
+  </div>
+  <div class="card-grid">
+    <div class="placeholder-card">
+      <div class="plus">+</div>
+      <div>DSPy詳細調査レポート<br>（PoC設計時に追加予定）</div>
+    </div>
+    <div class="placeholder-card">
+      <div class="plus">+</div>
+      <div>競合・先行事例調査<br>（随時追加）</div>
+    </div>
+  </div>
+
+  <!-- その他 -->
+  <div class="section-header">
+    <div class="section-icon" style="background:#fefce8;">📁</div>
+    <span class="section-title">その他</span>
+    <span class="section-count">準備中</span>
+  </div>
+  <div class="card-grid">
+    <div class="placeholder-card">
+      <div class="plus">+</div>
+      <div>議事録 / 会議メモ<br>（随時追加）</div>
+    </div>
+    <div class="placeholder-card">
+      <div class="plus">+</div>
+      <div>KPIダッシュボード<br>（計測開始後に追加予定）</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  AIエージェント案件 ドキュメントポータル — makoto55879/C_AI-Agent_Poc
+</footer>
+
+</body>
+</html>
