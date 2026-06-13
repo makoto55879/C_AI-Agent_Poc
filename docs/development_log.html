@@ -303,6 +303,13 @@
             </div>
 
             <div class="timeline-item">
+                <a href="#log-004" class="timeline-link">
+                    <div class="timeline-date">2026-06-13</div>
+                    <div class="timeline-title">エージェント構成の比較分析</div>
+                </a>
+            </div>
+
+            <div class="timeline-item">
                 <div class="timeline-date">Future</div>
                 <div class="timeline-title" style="color: #999;">PoC設計の開始（予定）</div>
             </div>
@@ -408,6 +415,54 @@
                     <div class="status-block status-decision">
                         <h4>決定事項</h4>
                         <p>DSPyを活用する方向性は有望であると確認。まずはPoC（概念実証）として、特定のシナリオ（例：Web3層アーキテクチャ）に絞った小規模な評価基盤の構築を検討する。</p>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Log Entry 004 -->
+            <article id="log-004" class="log-entry">
+                <div class="log-header">
+                    <div>
+                        <h2 class="log-title">エージェント構成の比較分析（シングル vs マルチ）</h2>
+                        <div class="log-meta">
+                            <span>日付: 2026-06-13</span>
+                            <span>作成者: Manus AI / ユーザー</span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="tag discussion">調査・分析</span>
+                        <span class="tag decision">方向性決定</span>
+                    </div>
+                </div>
+                
+                <div class="log-content">
+                    <h3>1. 検討の背景</h3>
+                    <p>ブレインストーミングで出た「ペルソナ別マルチ評価」や「Adversarial Testing（レッドチーム）」といったマルチエージェント構成について、従来のシングルエージェント構成と比較した場合の具体的な違い（精度・コスト・レスポンス速度等）を整理する必要性が生じた。</p>
+                    <p>また、セキュリティに特化したAnthropicの最新モデル「Claude Mythos 5」をレッドチームLLMとして採用するアイデアについても技術的妥当性を検証した。</p>
+
+                    <h3>2. 比較分析結果の要約</h3>
+                    <p>最新の研究動向（2025-2026年）を踏まえた比較分析を実施し、詳細な資料を「設計・仕様書」カテゴリに追加した。<br>
+                    <a href="ai_architecture_comparison.html" style="color:var(--accent-color); font-weight:bold;">→ 資料：AIエージェント構成比較：シングル vs マルチ（ペルソナ・レッドチーム）</a></p>
+                    
+                    <div class="status-block status-pending">
+                        <h4>判明した課題とトレードオフ</h4>
+                        <ul>
+                            <li><strong>精度の向上：</strong> マルチエージェント構成は複雑なタスクにおいてシングル構成より30〜40%高い精度（Success Rate）を達成可能。</li>
+                            <li><strong>コストとレイテンシの壁：</strong> 特にレッドチーム構成（直列の議論ループ）は、コストが数倍に跳ね上がり、レスポンス速度も著しく低下する。</li>
+                        </ul>
+                    </div>
+
+                    <h3>3. Claude Mythosの評価</h3>
+                    <p>調査の結果、Claude Mythos 5はゼロデイ脆弱性の発見やエクスプロイト開発において桁違いの性能を示しており、<strong>「レッドチームLLMとしてMythosを採用する」というアプローチは極めて強力かつ理にかなっている</strong>ことが確認された。</p>
+
+                    <div class="status-block status-decision">
+                        <h4>決定事項（次ステップへの方針）</h4>
+                        <p>精度向上のためにはアーキテクチャレベルでの転換（マルチエージェント化）が不可欠だが、コストとレイテンシの観点から<strong>「段階的な導入とハイブリッドルーティング」</strong>を基本方針とする。</p>
+                        <ol>
+                            <li>まずは「シングルエージェント＋DSPy」でベースライン環境を構築。</li>
+                            <li>「ペルソナ別マルチ評価」を導入し、安価なモデル（Haiku等）を活用して網羅性を担保。</li>
+                            <li>クリティカルな領域（IAM、ネットワーク境界等）や夜間バッチ評価に限定して、「Claude Mythosによるレッドチーム評価」を組み込む。</li>
+                        </ol>
                     </div>
                 </div>
             </article>
